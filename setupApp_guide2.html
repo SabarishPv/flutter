@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portable Flutter + Android SSD Setup for macOS</title>
+    <style>
+        :root {
+            --bg-dark: #1e1e1e;
+            --bg-light: #2c2c2c;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-color: #00bfa5;
+            --accent-hover: #008c7a;
+            --border-color: #444;
+            --code-bg: #161616;
+            --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.5em;
+            margin-bottom: 0.2em;
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+        }
+
+        .step-card {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        h2,
+        h3 {
+            color: var(--text-primary);
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 15px;
+        }
+
+        h3 {
+            font-size: 1.3em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        p,
+        ul {
+            font-size: 1em;
+            color: var(--text-secondary);
+        }
+
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        li::marker {
+            color: var(--accent-color);
+        }
+
+        .code-block-wrapper {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--text-primary);
+            padding: 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            white-space: pre;
+        }
+
+        code {
+            font-family: var(--font-mono);
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #3d3d3d;
+            color: #b0b0b0;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .final-check p {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .note {
+            background-color: rgba(0, 191, 165, 0.1);
+            border-left: 3px solid var(--accent-color);
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Portable Flutter + Android SSD Setup</h1>
+            <p>Your complete guide to creating and using a self-contained development environment on an external SSD for
+                macOS.</p>
+        </header>
+
+        <div class="step-card">
+            <h2>Your Setup: Quick Reference</h2>
+            <p>This section summarizes the complete folder structure and environment for your portable Flutter
+                development setup. Use this as a reference for locating files and understanding the configuration.</p>
+
+            <h3>SDK & Tools Directory Structure</h3>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash">/Volumes/TAP/app/
+├── flutter/                # Flutter SDK
+│   └── bin/                # Flutter and Dart executables
+├── Android Studio.app      # Installed Android Studio
+├── cmdline-tools/          # Android SDK command-line tools
+│   └── latest/
+│       └── bin/            # sdkmanager, avdmanager, etc.
+├── platform-tools/         # adb, fastboot, etc.
+├── platforms/
+│   └── android-36/         # Android SDK platform, contains android.jar
+├── build-tools/            # Android build tools
+├── emulator/               # Android emulator executables
+├── licenses/               # Accepted Android licenses
+└── system-images/          # Android system images for emulators</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+
+            <h3>Example Flutter Project Structure</h3>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash">/Volumes/TAP/app/FlutterProjects/todo_app/
+├── lib/main.dart           # Entry point of the app
+├── android/                # Android-specific files (Gradle, etc.)
+├── pubspec.yaml            # Project dependencies and config
+└── ...                     # Other project files</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+
+            <h3>Environment Variable Configuration</h3>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash"># Placed in your ~/.zshrc file
+export FLUTTER_HOME="/Volumes/TAP/app/flutter"
+export ANDROID_SDK_ROOT="/Volumes/TAP/app"
+export PATH="$FLUTTER_HOME/bin:$ANDROID_SDK_ROOT/emulator:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+        </div>
+
+
+        <div class="step-card">
+            <h2>Step 1: Prerequisites & Initial Setup</h2>
+            <p>Before you begin, ensure you have the following ready in your main SSD directory (e.g.,
+                <code>/Volumes/TAP/app/</code>):
+            </p>
+            <ul>
+                <li>The Flutter SDK zip file downloaded and extracted into a folder named <code>flutter</code>.</li>
+                <li>Android Studio downloaded and placed as <code>Android Studio.app</code>.</li>
+            </ul>
+            <p class="note">This guide assumes your main development directory on the SSD is
+                <code>/Volumes/TAP/app/</code>. All Android SDK components will be installed directly inside this
+                folder.
+            </p>
+        </div>
+
+        <div class="step-card">
+            <h2>Step 2: Install Android Command-Line Tools</h2>
+            <p>The <code>sdkmanager</code> is essential for downloading SDK components. We need to download and place it
+                correctly.</p>
+            <ol>
+                <li>Create the required directory structure:</li>
+            </ol>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash">mkdir -p /Volumes/TAP/app/cmdline-tools/latest</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+            <ol start="2">
+                <li>Download the latest tools from the <a
+                        href="https://developer.android.com/studio#command-line-tools-only" target="_blank"
+                        rel="noopener noreferrer">official Android Studio page</a>. Then, run these commands to extract
+                    and place them. <strong>Remember to update the URL.</strong></li>
+            </ol>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash"># Replace with the latest URL from the Android developer website
+CMDLINE_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-mac-11076708_latest.zip"
+
+curl -o ~/Downloads/cmdline-tools.zip "$CMDLINE_TOOLS_URL"
+unzip -q ~/Downloads/cmdline-tools.zip -d ~/Downloads/
+mv ~/Downloads/cmdline-tools/* /Volumes/TAP/app/cmdline-tools/latest/
+rm ~/Downloads/cmdline-tools.zip
+rm -rf ~/Downloads/cmdline-tools/</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <h2>Step 3: Configure Your Shell Environment</h2>
+            <p>Next, you need to tell your Mac's terminal where to find Flutter and the Android SDK tools by editing
+                your <code>.zshrc</code> file.</p>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash"># Open your .zshrc file in a text editor
+open ~/.zshrc
+
+# Add the following lines to the end of the file, then save it.
+# This tells your system where to find the Flutter and Android tools.
+export FLUTTER_HOME="/Volumes/TAP/app/flutter"
+export ANDROID_SDK_ROOT="/Volumes/TAP/app"
+export PATH="$FLUTTER_HOME/bin:$ANDROID_SDK_ROOT/emulator:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+            <p>Apply the changes by restarting your terminal or running:</p>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash">source ~/.zshrc</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <h2>Step 4: Install Android SDK Components</h2>
+            <p>With <code>sdkmanager</code> configured, you can now install the necessary platforms, build tools, and
+                the emulator.</p>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash">sdkmanager --sdk_root=${ANDROID_SDK_ROOT} "platform-tools" "platforms;android-36" "build-tools;36.0.0" "emulator"</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+            <p>After installation, you must accept all licenses.</p>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash">sdkmanager --licenses</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+            <p class="note">You will be prompted several times. Press <code>y</code> and <code>Enter</code> to accept
+                all licenses.</p>
+        </div>
+
+        <div class="step-card">
+            <h2>Step 5: Configure Flutter & Final Verification</h2>
+            <p>Tell Flutter where to find the Android SDK and then run <code>flutter doctor</code> to confirm everything
+                is working.</p>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash">flutter config --android-sdk ${ANDROID_SDK_ROOT}</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+            <p>Now, run the final check:</p>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash">flutter doctor -v</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+            <div class="final-check">
+                <p>You should see green checkmarks for Flutter, Android toolchain, and Android Studio. It's okay to see
+                    errors for Xcode/iOS, as we are only targeting Android!</p>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <h2>Step 6: Create and Run Your First App</h2>
+            <p>Your environment is ready! Let's build something.</p>
+            <ol>
+                <li>Create a projects directory on your SSD and navigate into it.</li>
+            </ol>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash">mkdir -p /Volumes/TAP/app/FlutterProjects && cd /Volumes/TAP/app/FlutterProjects</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+            <ol start="2">
+                <li>Use the Flutter CLI to create a new app.</li>
+            </ol>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash">flutter create my_first_ssd_app</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+            <ol start="3">
+                <li>Run the app. Make sure an Android emulator is running or a physical device is connected via USB.
+                </li>
+            </ol>
+            <div class="code-block-wrapper">
+                <pre><code class="language-bash">cd my_first_ssd_app
+flutter run</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+            <ol start="4">
+                <li>To see an instant change, open <code>lib/main.dart</code> in your favorite code editor (like VS
+                    Code) and replace its contents with this simple "Hello World" code.</li>
+            </ol>
+            <div class="code-block-wrapper">
+                <pre><code class="language-dart">import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: Colors.teal[700],
+        appBar: AppBar(
+          title: const Text('My First SSD App'),
+          backgroundColor: Colors.teal[900],
+        ),
+        body: const Center(
+          child: Text(
+            'Hello from my SSD!',
+            style: TextStyle(
+              fontSize: 24,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}</code></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+            <p class="note">After saving the file, Flutter's <strong>Hot Reload</strong> feature will automatically
+                update the running application in seconds. Congratulations, you're now a Flutter developer!</p>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const pre = button.closest('.code-block-wrapper').querySelector('pre');
+                const code = pre.querySelector('code');
+                const text = code.innerText;
+
+                navigator.clipboard.writeText(text).then(() => {
+                    button.innerText = 'Copied!';
+                    setTimeout(() => {
+                        button.innerText = 'Copy';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            });
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portable Flutter + Android SSD Setup Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom scrollbar for a more polished look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .dark ::-webkit-scrollbar-track {
+            background: #2d3748;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #555;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+        .step-card {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
+
+        <!-- Header and Theme Toggle -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">Portable Flutter SSD Setup</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Your complete guide for macOS.</p>
+            </div>
+            <button id="theme-toggle"
+                class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900">
+                <svg id="theme-icon-light" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                    </path>
+                </svg>
+                <svg id="theme-icon-dark" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                    </path>
+                </svg>
+            </button>
+        </header>
+
+        <main class="space-y-6">
+
+            <!-- Introduction -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                <h2 class="text-2xl font-semibold mb-3 text-blue-600 dark:text-blue-400">Welcome!</h2>
+                <p class="text-base leading-relaxed">
+                    This guide will walk you through setting up a fully portable Flutter and Android development
+                    environment on an external SSD. This keeps your main system clean and allows you to take your work
+                    to any Mac. Let's get started!
+                </p>
+            </div>
+
+            <!-- Step 1: Directory Structure -->
+            <div class="step-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                <h3 class="text-xl font-bold mb-4">Step 1: Prepare Your SSD Directory Structure</h3>
+                <p class="mb-4">First, we need a clean and predictable folder structure. We'll create a main `sdk`
+                    directory to house all Android-related components. Assume your SSD is mounted at `/Volumes/TAP` and
+                    you'll work inside an `app` folder.</p>
+                <div class="code-block relative">
+                    <pre
+                        class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 p-4 rounded-lg overflow-x-auto"><code class="language-bash"># Create the main sdk directory which will be your ANDROID_HOME
+mkdir -p /Volumes/TAP/app/sdk
+
+# If you have existing SDK folders (like build-tools), move them inside
+# mv /Volumes/TAP/app/platform-tools /Volumes/TAP/app/sdk/</code></pre>
+                    <button
+                        class="copy-btn absolute top-2 right-2 p-2 bg-gray-300 dark:bg-gray-700 rounded-md text-xs font-semibold hover:bg-gray-400 dark:hover:bg-gray-600">Copy</button>
+                </div>
+                <p class="mt-4 font-mono text-sm text-gray-500 dark:text-gray-400">Your target structure should look
+                    like this:
+                <pre class="bg-gray-100 dark:bg-gray-900 p-3 mt-2 rounded-md">/Volumes/TAP/app/
+├── Android Studio.app
+├── flutter/
+└── sdk/</pre>
+                </p>
+            </div>
+
+            <!-- Step 2: Install CMDLine Tools -->
+            <div class="step-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                <h3 class="text-xl font-bold mb-4">Step 2: Install Android Command-Line Tools</h3>
+                <p class="mb-4">The `sdkmanager` is essential for downloading SDK components. We need to download it and
+                    place it in the correct location within our new `sdk` folder.</p>
+                <ol class="list-decimal list-inside space-y-2 mb-4">
+                    <li>Create the destination directory: <code
+                            class="bg-gray-200 dark:bg-gray-700 px-1 rounded-md text-sm">sdk/cmdline-tools/latest</code>.
+                    </li>
+                    <li>Download the tools from the <a
+                            href="https://developer.android.com/studio#command-line-tools-only" target="_blank"
+                            class="text-blue-500 hover:underline">Android Studio website</a> (under "Command line tools
+                        only").</li>
+                    <li>Copy the download link for the Mac version and paste it into the command below.</li>
+                </ol>
+                <div class="code-block relative">
+                    <pre class="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto"><code class="language-bash"># 1. Create the directory
+mkdir -p /Volumes/TAP/app/sdk/cmdline-tools/latest
+
+# 2. Download, extract, and move the tools
+#    (Replace the URL with the latest one from the Android website)
+URL="https://dl.google.com/android/repository/commandlinetools-mac-11076708_latest.zip"
+curl -o ~/Downloads/cmdline-tools.zip "$URL"
+unzip -q ~/Downloads/cmdline-tools.zip -d ~/Downloads/
+mv ~/Downloads/cmdline-tools/* /Volumes/TAP/app/sdk/cmdline-tools/latest/
+
+# 3. Clean up
+rm ~/Downloads/cmdline-tools.zip
+rm -rf ~/Downloads/cmdline-tools/</code></pre>
+                    <button
+                        class="copy-btn absolute top-2 right-2 p-2 bg-gray-300 dark:bg-gray-700 rounded-md text-xs font-semibold hover:bg-gray-400 dark:hover:bg-gray-600">Copy</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Configure .zshrc -->
+            <div class="step-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                <h3 class="text-xl font-bold mb-4">Step 3: Configure Your `.zshrc` Environment</h3>
+                <p class="mb-4">Your terminal needs to know where to find the Flutter and Android executables. We'll add
+                    their paths to your shell configuration file (`.zshrc`).</p>
+                <div class="code-block relative">
+                    <pre class="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto"><code class="language-bash"># Open your .zshrc file in a text editor
+open ~/.zshrc
+
+# Add the following lines to the end of the file, then save and close it.
+# This makes the setup portable and easy to manage.
+
+# === SSD Flutter & Android SDK Setup ===
+export SSD_DEV_DIR="/Volumes/TAP/app"
+
+# Flutter
+export PATH="$SSD_DEV_DIR/flutter/bin:$PATH"
+
+# Android SDK
+export ANDROID_HOME="$SSD_DEV_DIR/sdk"
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+export PATH="$ANDROID_HOME/emulator:$PATH"
+export PATH="$ANDROID_HOME/platform-tools:$PATH"</code></pre>
+                    <button
+                        class="copy-btn absolute top-2 right-2 p-2 bg-gray-300 dark:bg-gray-700 rounded-md text-xs font-semibold hover:bg-gray-400 dark:hover:bg-gray-600">Copy</button>
+                </div>
+                <p class="mt-4">After saving, apply the changes by restarting your terminal or running:</p>
+                <div class="code-block relative mt-2">
+                    <pre
+                        class="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto"><code class="language-bash">source ~/.zshrc</code></pre>
+                    <button
+                        class="copy-btn absolute top-2 right-2 p-2 bg-gray-300 dark:bg-gray-700 rounded-md text-xs font-semibold hover:bg-gray-400 dark:hover:bg-gray-600">Copy</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Install SDK Components -->
+            <div class="step-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                <h3 class="text-xl font-bold mb-4">Step 4: Install SDK Components & Accept Licenses</h3>
+                <p class="mb-4">With `sdkmanager` configured, you can now download the required Android platforms, build
+                    tools, and the emulator. Then, you must accept the licenses.</p>
+                <div class="code-block relative">
+                    <pre class="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto"><code class="language-bash"># Install the necessary packages. You can change the version numbers if needed.
+sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools" "platforms;android-34" "build-tools;34.0.0" "emulator"
+
+# Accept all licenses (press 'y' and Enter for each prompt)
+sdkmanager --licenses</code></pre>
+                    <button
+                        class="copy-btn absolute top-2 right-2 p-2 bg-gray-300 dark:bg-gray-700 rounded-md text-xs font-semibold hover:bg-gray-400 dark:hover:bg-gray-600">Copy</button>
+                </div>
+            </div>
+
+            <!-- Step 5: Final Verification -->
+            <div class="step-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                <h3 class="text-xl font-bold mb-4">Step 5: Final Flutter Configuration & Verification</h3>
+                <p class="mb-4">Finally, tell Flutter where to find your new Android SDK and run `flutter doctor` to
+                    verify that everything is working correctly.</p>
+                <div class="code-block relative">
+                    <pre class="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto"><code class="language-bash"># Configure Flutter with the correct Android SDK path
+flutter config --android-sdk ${ANDROID_HOME}
+
+# Run flutter doctor to check your setup
+flutter doctor -v</code></pre>
+                    <button
+                        class="copy-btn absolute top-2 right-2 p-2 bg-gray-300 dark:bg-gray-700 rounded-md text-xs font-semibold hover:bg-gray-400 dark:hover:bg-gray-600">Copy</button>
+                </div>
+                <p class="mt-4">You should see green checkmarks for Flutter and the Android toolchain. It's okay if
+                    Xcode shows an error, as we are only targeting Android.</p>
+            </div>
+
+            <!-- Bonus: First App -->
+            <div
+                class="bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-800 dark:to-indigo-900 text-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-semibold mb-3">🎉 Bonus: Your First Portable App</h2>
+                <p class="mb-4">Congratulations! Your environment is ready. Let's create and run a simple "Hello World"
+                    app directly from your SSD.</p>
+
+                <h4 class="font-bold mt-6 mb-2">1. Create the Project</h4>
+                <div class="code-block relative">
+                    <pre class="bg-blue-900/50 dark:bg-indigo-900/70 p-4 rounded-lg overflow-x-auto"><code class="language-bash"># Navigate to a folder on your SSD where you want to keep your projects
+cd /Volumes/TAP/
+
+# Create a new Flutter app
+flutter create my_first_app
+
+# Navigate into your new project directory
+cd my_first_app</code></pre>
+                    <button
+                        class="copy-btn absolute top-2 right-2 p-2 bg-blue-700 dark:bg-indigo-800 rounded-md text-xs font-semibold hover:bg-blue-600 dark:hover:bg-indigo-700">Copy</button>
+                </div>
+
+                <h4 class="font-bold mt-6 mb-2">2. Replace the Code</h4>
+                <p class="mb-2">Open the file <code
+                        class="bg-blue-900/50 dark:bg-indigo-900/70 px-1 rounded-md text-sm">lib/main.dart</code> in
+                    your favorite code editor and replace its entire content with the code below.</p>
+                <div class="code-block relative">
+                    <pre class="bg-blue-900/50 dark:bg-indigo-900/70 p-4 rounded-lg overflow-x-auto"><code class="language-dart">import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: const Color(0xFF1A1A2E), // Dark blue background
+        appBar: AppBar(
+          title: const Text('My Portable App'),
+          backgroundColor: const Color(0xFF16213E),
+          elevation: 0,
+        ),
+        body: const Center(
+          child: Text(
+            'Hello, Portable World!',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFE94560), // Vibrant pink text
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}</code></pre>
+                    <button
+                        class="copy-btn absolute top-2 right-2 p-2 bg-blue-700 dark:bg-indigo-800 rounded-md text-xs font-semibold hover:bg-blue-600 dark:hover:bg-indigo-700">Copy</button>
+                </div>
+
+                <h4 class="font-bold mt-6 mb-2">3. Run the App</h4>
+                <p class="mb-2">Connect an Android device or start an emulator, then run the following command in your
+                    terminal:</p>
+                <div class="code-block relative">
+                    <pre
+                        class="bg-blue-900/50 dark:bg-indigo-900/70 p-4 rounded-lg overflow-x-auto"><code class="language-bash">flutter run</code></pre>
+                    <button
+                        class="copy-btn absolute top-2 right-2 p-2 bg-blue-700 dark:bg-indigo-800 rounded-md text-xs font-semibold hover:bg-blue-600 dark:hover:bg-indigo-700">Copy</button>
+                </div>
+            </div>
+        </main>
+
+        <footer class="text-center mt-10 text-gray-500 dark:text-gray-400 text-sm">
+            <p>Happy Coding!</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlEl = document.documentElement;
+        const lightIcon = document.getElementById('theme-icon-light');
+        const darkIcon = document.getElementById('theme-icon-dark');
+
+        // Check for saved theme in localStorage
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            htmlEl.classList.add('dark');
+            lightIcon.classList.remove('hidden');
+            darkIcon.classList.add('hidden');
+        } else {
+            htmlEl.classList.remove('dark');
+            lightIcon.classList.add('hidden');
+            darkIcon.classList.remove('hidden');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            htmlEl.classList.toggle('dark');
+            const isDark = htmlEl.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            lightIcon.classList.toggle('hidden', !isDark);
+            darkIcon.classList.toggle('hidden', isDark);
+        });
+
+        // Copy button functionality
+        const allCopyButtons = document.querySelectorAll('.copy-btn');
+        allCopyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const codeBlock = button.previousElementSibling;
+                const code = codeBlock.querySelector('code').innerText;
+
+                // Using a temporary textarea to copy
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    button.innerText = 'Copied!';
+                } catch (err) {
+                    button.innerText = 'Error';
+                    console.error('Failed to copy text: ', err);
+                }
+                document.body.removeChild(textarea);
+
+                setTimeout(() => {
+                    button.innerText = 'Copy';
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+
+</html>
